@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
 
@@ -63,10 +64,18 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+      $user =  User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+
+       //发送欢迎邮件
+     Mail::send('emails.welcome',['user'=>$user],function($message)use($user){
+         $message->from(env('MAIL_USERNAME'));
+         $message->to($user->email);
+         $message->subject('Welcome to lara');
+    });
+     return $user;
     }
 }
